@@ -22,29 +22,17 @@ class OperationHolderMixin:
         return OperandHolder(OR, other, self)
 
     def __invert__(self):
-        return SingleOperandHolder(NOT, self)
-
-
-class SingleOperandHolder(OperationHolderMixin):
-    def __init__(self, operator_class, op1_class):
-        self.operator_class = operator_class
-        self.op1_class = op1_class
-
-    def __call__(self, *args, **kwargs):
-        op1 = self.op1_class(*args, **kwargs)
-        return self.operator_class(op1)
+        return OperandHolder(NOT, self)
 
 
 class OperandHolder(OperationHolderMixin):
-    def __init__(self, operator_class, op1_class, op2_class):
+    def __init__(self, operator_class, *operand_classes):
         self.operator_class = operator_class
-        self.op1_class = op1_class
-        self.op2_class = op2_class
+        self.operand_classes = operand_classes
 
     def __call__(self, *args, **kwargs):
-        op1 = self.op1_class(*args, **kwargs)
-        op2 = self.op2_class(*args, **kwargs)
-        return self.operator_class(op1, op2)
+        operands = map(lambda op: op(*args, **kwargs), self.operand_classes)
+        return self.operator_class(*operands)
 
 
 class AND:
